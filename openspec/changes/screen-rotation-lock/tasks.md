@@ -2,7 +2,7 @@
 
 - [x] 1.1 在 `OpenCodeCore.ts` 中添加 `public static async applyScreenOrientation(context: Context, isLocked: boolean): Promise<void>` 方法
 - [x] 1.2 在方法内使用 `window.getLastWindow(context)` 获取当前窗口
-- [x] 1.3 调用 `window.setPreferredOrientation` 设置 `Orientation.PORTRAIT`（锁定时）或 `Orientation.AUTO_ROTATION_RESTRICTED`（跟随系统时）
+- [x] 1.3 调用 `window.setPreferredOrientation` 设置 `Orientation.PORTRAIT`（锁定时）或 `Orientation.UNSPECIFIED`（跟随系统时）
 
 ## 2. 修改 EntryAbility 应用方向
 

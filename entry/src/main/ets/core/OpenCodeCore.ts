@@ -324,7 +324,7 @@ export class OpenCodeCore {
 
   public static async applyScreenOrientation(context: common.Context, isLocked: boolean): Promise<void> {
     const currentWindow = await window.getLastWindow(context);
-    const orientation = isLocked ? window.Orientation.PORTRAIT : window.Orientation.AUTO_ROTATION_RESTRICTED;
+    const orientation = isLocked ? window.Orientation.PORTRAIT : window.Orientation.UNSPECIFIED;
     await currentWindow.setPreferredOrientation(orientation);
   }
 

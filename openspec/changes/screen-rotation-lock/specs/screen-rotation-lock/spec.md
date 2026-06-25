@@ -10,7 +10,7 @@
 
 #### Scenario: 窗口创建且旋转未锁定
 - **当** `EntryAbility.onWindowStageCreate` 被调用且 `rotationLocked` 为 `false` 时
-- **则** 系统将屏幕方向设置为跟随系统（`Orientation.AUTO_ROTATION_RESTRICTED`）
+- **则** 系统将屏幕方向设置为跟随系统（`Orientation.UNSPECIFIED`）
 
 ### Requirement: 设置变更时实时应用
 

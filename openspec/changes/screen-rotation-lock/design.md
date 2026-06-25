@@ -43,13 +43,13 @@ window.getLastWindow(this.context, (err, win) => {
   if (isLocked) {
     win.setPreferredOrientation(window.Orientation.PORTRAIT);
   } else {
-    win.setPreferredOrientation(window.Orientation.AUTO_ROTATION_RESTRICTED);
+    win.setPreferredOrientation(window.Orientation.UNSPECIFIED);
   }
 });
 ```
 
 - `Orientation.PORTRAIT`：锁定竖屏
-- `Orientation.AUTO_ROTATION_RESTRICTED`：跟随系统自动旋转设置
+- `Orientation.UNSPECIFIED`：方向由系统决定，兼容 ArkUI-X crossplatform 应用
 
 ### 2. 设置变更时实时应用
 
@@ -77,7 +77,7 @@ public static async applyScreenOrientation(context: Context, isLocked: boolean):
   if (isLocked) {
     win.setPreferredOrientation(window.Orientation.PORTRAIT);
   } else {
-    win.setPreferredOrientation(window.Orientation.AUTO_ROTATION_RESTRICTED);
+    win.setPreferredOrientation(window.Orientation.UNSPECIFIED);
   }
 }
 ```
