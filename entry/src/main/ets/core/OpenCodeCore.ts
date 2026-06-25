@@ -260,8 +260,6 @@ export interface ContainerInfo {
 
 export class OpenCodeCore {
   private static instance: OpenCodeCore;
-  // ArkUI-X crossplatform rejects the AUTO_ROTATION_RESTRICTED enum symbol, but the runtime accepts its value.
-  private static readonly ORIENTATION_FOLLOW_SYSTEM = 8 as window.Orientation;
   private projects: OpenCodeProject[] = [];
   private backends: OpenCodeBackend[] = [];
   private currentProjectId: string = '';
@@ -326,7 +324,7 @@ export class OpenCodeCore {
 
   public static async applyScreenOrientation(context: common.Context, isLocked: boolean): Promise<void> {
     const currentWindow = await window.getLastWindow(context);
-    const orientation = isLocked ? window.Orientation.PORTRAIT : OpenCodeCore.ORIENTATION_FOLLOW_SYSTEM;
+    const orientation = isLocked ? window.Orientation.PORTRAIT : window.Orientation.UNSPECIFIED;
     await currentWindow.setPreferredOrientation(orientation);
   }
 

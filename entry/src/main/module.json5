@@ -18,6 +18,7 @@
         // "icon": "$media:layered_image",
         "icon": "$media:colorfulO216",
         "label": "$string:EntryAbility_label",
+        "orientation": "auto_rotation_unspecified",
         // "startWindowIcon": "$media:startIcon",
         "startWindowIcon": "$media:colorfulO288",
         "startWindowBackground": "$color:start_window_background",

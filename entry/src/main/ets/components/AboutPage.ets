@@ -1310,9 +1310,9 @@ export struct AboutPage {
             }
             .width('100%')
             .padding({ left: 16, right: 16, top: 14, bottom: 14 })
-            .onClick(() => {
+            .onClick(async () => {
               this.isRotationLocked = false;
-              this.core.setRotationLocked(false);
+              await this.core.setRotationLocked(false);
               AppStorage.setOrCreate<boolean>('rotationLocked', false);
               const context = this.core.getContext();
               if (context) {
@@ -1345,9 +1345,9 @@ export struct AboutPage {
             }
             .width('100%')
             .padding({ left: 16, right: 16, top: 14, bottom: 14 })
-            .onClick(() => {
+            .onClick(async () => {
               this.isRotationLocked = true;
-              this.core.setRotationLocked(true);
+              await this.core.setRotationLocked(true);
               AppStorage.setOrCreate<boolean>('rotationLocked', true);
               const context = this.core.getContext();
               if (context) {

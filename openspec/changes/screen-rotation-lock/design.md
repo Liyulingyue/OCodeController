@@ -24,7 +24,7 @@ onWindowStageCreate(windowStage: window.WindowStage): void {
 
 **目标：**
 - 在 HarmonyOS 设备上正确实现屏幕竖屏锁定
-- 用户切换设置后实时生效（无需重启应用）
+- 用户切换设置后生效，无需用户手动重启应用
 - 在窗口创建时正确应用锁定设置
 
 **非目标：**
@@ -35,21 +35,19 @@ onWindowStageCreate(windowStage: window.WindowStage): void {
 
 ### 1. HarmonyOS 端：使用 window API 设置方向
 
-**决策**：在 `EntryAbility.onWindowStageCreate` 中获取窗口并设置方向。
+**决策**：在 `module.json5` 的 `EntryAbility` 上声明 `orientation: "auto_rotation_unspecified"` 作为应用默认方向；运行时使用 ArkUI-X crossplatform 支持的基础方向枚举设置或清除窗口方向偏好。
 
 关键 API：
 ```typescript
-window.getLastWindow(this.context, (err, win) => {
-  if (isLocked) {
-    win.setPreferredOrientation(window.Orientation.PORTRAIT);
-  } else {
-    win.setPreferredOrientation(8 as window.Orientation);
-  }
-});
+const win = await window.getLastWindow(this.context);
+await win.setPreferredOrientation(
+  isLocked ? window.Orientation.PORTRAIT : window.Orientation.UNSPECIFIED
+);
 ```
 
 - `Orientation.PORTRAIT`：锁定竖屏
-- `8 as window.Orientation`：`AUTO_ROTATION_RESTRICTED` 的运行时值，跟随传感器并受系统自动旋转锁控制；ArkUI-X crossplatform 编译不允许直接引用该 enum symbol
+- `Orientation.UNSPECIFIED`：清除运行时竖屏偏好，由系统和 ability manifest 决定后续方向
+- `module.json5` 的 `auto_rotation_unspecified`：默认由系统决定方向并受系统自动旋转锁控制，避免在 ArkTS 代码中引用非 crossplatform enum symbol
 
 ### 2. 设置变更时实时应用
 
@@ -74,11 +72,9 @@ window.getLastWindow(this.context, (err, win) => {
 ```typescript
 public static async applyScreenOrientation(context: Context, isLocked: boolean): Promise<void> {
   const win = await window.getLastWindow(context);
-  if (isLocked) {
-    win.setPreferredOrientation(window.Orientation.PORTRAIT);
-  } else {
-    win.setPreferredOrientation(8 as window.Orientation);
-  }
+  await win.setPreferredOrientation(
+    isLocked ? window.Orientation.PORTRAIT : window.Orientation.UNSPECIFIED
+  );
 }
 ```
 
@@ -87,3 +83,4 @@ public static async applyScreenOrientation(context: Context, isLocked: boolean):
 - **[风险] `getLastWindow` 异步失败**：在窗口未就绪时调用可能失败。→ **缓解**：在 `onWindowStageCreate` 中调用，此时窗口已创建。
 - **[风险] 平板设备方向**：平板通常默认横屏，锁定竖屏可能体验不佳。→ **缓解**：仅在"锁定竖屏"选项下生效，平板用户通常选择"跟随系统"。
 - **[风险] 权限问题**：某些设备可能限制应用设置方向。→ **缓解**：`setPreferredOrientation` 是标准 API，大多数设备支持。
+- **[权衡] 跟随系统不使用 restricted 运行时枚举**：crossplatform window API 不支持运行时设置 `AUTO_ROTATION_RESTRICTED`。→ **缓解**：代码使用 crossplatform 的 `UNSPECIFIED` 清除偏好，并通过 manifest 默认方向接回系统旋转策略。

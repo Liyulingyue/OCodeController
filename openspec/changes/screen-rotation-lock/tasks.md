@@ -2,7 +2,7 @@
 
 - [x] 1.1 在 `OpenCodeCore.ts` 中添加 `public static async applyScreenOrientation(context: Context, isLocked: boolean): Promise<void>` 方法
 - [x] 1.2 在方法内使用 `window.getLastWindow(context)` 获取当前窗口
-- [x] 1.3 调用 `window.setPreferredOrientation` 设置 `Orientation.PORTRAIT`（锁定时）或 `AUTO_ROTATION_RESTRICTED` 的运行时值 `8`（跟随系统时）
+- [x] 1.3 调用 `window.setPreferredOrientation` 设置 `Orientation.PORTRAIT`（锁定时）或 `Orientation.UNSPECIFIED`（跟随系统时），并在 `module.json5` 中声明默认 `auto_rotation_unspecified`
 
 ## 2. 修改 EntryAbility 应用方向
 
@@ -17,7 +17,7 @@
 
 ## 4. 测试验证
 
-- [ ] 4.1 测试：首次安装应用，锁定竖屏后重启，确认方向正确锁定
-- [ ] 4.2 测试：在应用内切换到"锁定竖屏"，确认屏幕立即锁定为竖屏
+- [x] 4.1 测试：首次安装应用，锁定竖屏后重启，确认方向正确锁定
+- [x] 4.2 测试：在应用内切换到"锁定竖屏"，确认屏幕立即锁定为竖屏
 - [ ] 4.3 测试：切换到"跟随系统"，确认屏幕可以随设备旋转
-- [ ] 4.4 测试：应用切换到后台再切回前台，确认方向保持正确
+- [x] 4.4 测试：应用切换到后台再切回前台，确认方向保持正确

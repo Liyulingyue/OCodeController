@@ -10,11 +10,12 @@
 
 #### Scenario: 窗口创建且旋转未锁定
 - **当** `EntryAbility.onWindowStageCreate` 被调用且 `rotationLocked` 为 `false` 时
-- **则** 系统将屏幕方向设置为跟随系统（`AUTO_ROTATION_RESTRICTED` 的运行时值 `8`）
+- **则** 系统将运行时窗口方向偏好设置为 `Orientation.UNSPECIFIED`
+- **并且** 窗口由系统和 ability manifest 中的 `auto_rotation_unspecified` 决定后续旋转
 
 ### Requirement: 设置变更时实时应用
 
-系统在用户切换旋转锁定设置后 MUST 实时应用屏幕方向变更，无需重启应用。
+系统在用户切换旋转锁定设置后 MUST 应用屏幕方向变更，无需用户手动重启应用。
 
 #### Scenario: 用户选择"锁定竖屏"
 - **当** 用户点击"锁定竖屏"选项时
@@ -26,7 +27,7 @@
 - **当** 用户点击"跟随系统"选项时
 - **则** 系统将 `rotationLocked` 保存到本地存储
 - **并且** 将 `AppStorage` 中的 `rotationLocked` 设置为 `false`
-- **并且** 立即将屏幕方向设置为跟随系统
+- **并且** 将运行时窗口方向偏好设置为 `Orientation.UNSPECIFIED`
 
 ### Requirement: 应用切换前台时重新应用设置
 

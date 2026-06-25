@@ -21,6 +21,6 @@
 ## 影响范围
 
 - **修改的文件**：
+  - `entry/src/main/module.json5` — 声明 EntryAbility 默认由系统决定自动旋转
   - `entry/src/main/ets/entryability/EntryAbility.ets` — 应用窗口方向控制
   - `entry/src/main/ets/components/AboutPage.ets` — 切换设置时实时应用方向
-  - `.arkui-x/android/.../EntryEntryAbilityActivity.java` — 改进 Android 端设置读取方式
