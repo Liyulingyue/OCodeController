@@ -4,8 +4,8 @@
 
 ## 改动内容
 
-- 在 `EntryAbility` 中使用 HarmonyOS `@kit.ArkUI` 的 `window` API，根据 `rotationLocked` 设置在窗口创建时设置屏幕方向
-- 在用户切换设置时，实时应用屏幕方向变更
+- 在 `EntryAbility` 中使用 HarmonyOS `@kit.ArkUI` 的 `window` API，根据 `rotationLocked` 设置竖屏锁定；未锁定时让 ability manifest 接管方向
+- 在用户切换设置时，实时应用屏幕方向变更；从竖屏锁定切回跟随系统时重建窗口以清除运行时竖屏偏好
 - 移除 Android Activity 中不可靠的反射读取方式，改为使用 ArkUI-X 提供的标准接口
 
 ## 能力
@@ -21,6 +21,6 @@
 ## 影响范围
 
 - **修改的文件**：
+  - `entry/src/main/module.json5` — 声明 EntryAbility 默认跟随系统自动旋转，并允许切换跟随系统时创建新实例
   - `entry/src/main/ets/entryability/EntryAbility.ets` — 应用窗口方向控制
   - `entry/src/main/ets/components/AboutPage.ets` — 切换设置时实时应用方向
-  - `.arkui-x/android/.../EntryEntryAbilityActivity.java` — 改进 Android 端设置读取方式

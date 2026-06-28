@@ -1,7 +1,9 @@
 import dataPreferences from '@ohos.data.preferences';
 import common from '@ohos.app.ability.common';
+import { Want } from '@kit.AbilityKit';
 import http from '@ohos.net.http';
 import util from '@ohos.util';
+import { window } from '@kit.ArkUI';
 import { OpenCodeApiClient, OpenCodeSession, OpenCodeMessage } from './OpenCodeApiClient';
 
 export { OpenCodeSession, OpenCodeMessage, OpenCodeProviderModel } from './OpenCodeApiClient';
@@ -319,6 +321,29 @@ export class OpenCodeCore {
 
   public getContext(): common.UIAbilityContext | null {
     return this.context;
+  }
+
+  public static async applyScreenOrientation(
+    context: common.UIAbilityContext,
+    isLocked: boolean,
+    recreateWhenUnlocked: boolean = false
+  ): Promise<void> {
+    if (isLocked) {
+      const currentWindow = await window.getLastWindow(context);
+      await currentWindow.setPreferredOrientation(window.Orientation.PORTRAIT);
+      return;
+    }
+
+    if (!recreateWhenUnlocked) {
+      return;
+    }
+
+    const restartWant: Want = {
+      bundleName: context.abilityInfo.bundleName,
+      abilityName: context.abilityInfo.name
+    };
+    await context.startAbility(restartWant);
+    await context.terminateSelf();
   }
 
   // 注册会话变更监听器

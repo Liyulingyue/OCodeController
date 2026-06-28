@@ -19,15 +19,17 @@ export default class EntryAbility extends UIAbility {
       AppStorage.setOrCreate<string>('refreshSessionsNow', timestamp.toString());
     });
 
-    windowStage.loadContent('pages/MainPage', (err) => {
+    const initPromise = this.initCore(core);
+
+    windowStage.loadContent('pages/MainPage', async (err) => {
       if (err.code) {
         console.error('[EntryAbility] Failed to load the content. Cause:', JSON.stringify(err));
         return;
       }
       console.info('[EntryAbility] Succeeded in loading the content.');
+      await initPromise;
+      await this.applyCurrentScreenOrientation(core);
     });
-
-    this.initCore(core);
   }
 
   private async initCore(core: OpenCodeCore): Promise<void> {
@@ -40,12 +42,22 @@ export default class EntryAbility extends UIAbility {
     AppStorage.setOrCreate<string>('refreshSessionsNow', Date.now().toString());
   }
 
+  private async applyCurrentScreenOrientation(core: OpenCodeCore): Promise<void> {
+    try {
+      await OpenCodeCore.applyScreenOrientation(this.context, core.isRotationLocked());
+    } catch (e) {
+      console.error('[EntryAbility] Failed to apply screen orientation:', e);
+    }
+  }
+
   onWindowStageDestroy(): void {
     console.info('[EntryAbility] Ability onWindowStageDestroy');
   }
 
   onForeground(): void {
     console.info('[EntryAbility] Ability onForeground');
+    const core = OpenCodeCore.getInstance();
+    this.applyCurrentScreenOrientation(core);
   }
 
   onBackground(): void {
