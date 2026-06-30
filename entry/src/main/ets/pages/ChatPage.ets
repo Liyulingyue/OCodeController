@@ -61,6 +61,8 @@ struct ChatPage {
   @State preferredModel: string = '';
   @State lastMsgCursor: string = '';
   @State lastCachedMsgTime: number = 0;
+  @State historyCursor: string = '';
+  @State isLoadingHistory: boolean = false;
   @State pendingPermission: PendingPermission | null = null;
   @State streamingMessageId: string = '';
   @State streamingContent: string = '';
@@ -314,6 +316,7 @@ struct ChatPage {
         this.username
       );
       console.info('[ChatPage] loadHistory got', page.items.length, 'items (latest mode)');
+      this.historyCursor = page.cursor.previous || '';
       if (page.items.length > 0) {
         this.messages = page.items;
         this.lastCachedMsgTime = page.items[page.items.length - 1].timestamp;
@@ -374,13 +377,45 @@ struct ChatPage {
         },
         this.username
       );
+      this.historyCursor = '';
     }
   }
 
-  private scrollToBottom() {
+  private async loadPreviousMessages(): Promise<void> {
+    if (this.historyCursor.length === 0 || this.isLoadingHistory) {
+      return;
+    }
+
+    this.isLoadingHistory = true;
+    try {
+      const page = await this.viewModel.loadHistoryPage(
+        this.backendUrl,
+        this.authToken,
+        this.directory,
+        this.realSessionId,
+        this.historyCursor,
+        20,
+        'desc',
+        this.username
+      );
+      this.historyCursor = page.cursor.previous || '';
+      const newItems = page.items.filter((msg: DisplayMessage): boolean =>
+        this.messages.findIndex((existing: DisplayMessage): boolean => existing.id === msg.id) === -1
+      );
+      if (newItems.length > 0) {
+        this.messages = [...newItems, ...this.messages];
+      }
+    } catch (e) {
+      console.error('[ChatPage] Failed to load previous messages:', e);
+    } finally {
+      this.isLoadingHistory = false;
+    }
+  }
+
+  private scrollToBottom(delay: number = 100) {
     setTimeout(() => {
       this.scroller.scrollEdge(Edge.Bottom);
-    }, 100);
+    }, delay);
   }
 
   @Builder
@@ -634,6 +669,26 @@ struct ChatPage {
 
       Scroll(this.scroller) {
         Column({ space: 8 }) {
+          if (this.isLoadingHistory) {
+            Row() {
+              LoadingProgress().width(14).height(14)
+              Text('加载历史消息...')
+                .fontSize(12)
+                .fontColor(this.themeTextTertiary)
+                .margin({ left: 6 })
+            }
+            .height(32)
+            .width('100%')
+            .justifyContent(FlexAlign.Center)
+          } else if (this.historyCursor.length === 0 && this.messages.length > 0) {
+            Text('没有更多消息')
+              .fontSize(12)
+              .fontColor(this.themeTextMuted)
+              .width('100%')
+              .height(32)
+              .textAlign(TextAlign.Center)
+          }
+
           ForEach(this.messages, (msg: DisplayMessage) => {
             this.buildMessageItem(msg)
           }, (msg: DisplayMessage) => msg.id)
@@ -645,6 +700,7 @@ struct ChatPage {
       .backgroundColor(this.themeBgSecondary)
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
+      .onReachStart(() => this.loadPreviousMessages())
 
       Column() {
         Row() {
@@ -654,6 +710,7 @@ struct ChatPage {
             .borderRadius(20)
             .padding({ left: 16, right: 16 })
             .onChange(v => this.inputText = v)
+            .onFocus(() => this.scrollToBottom(350))
             .onSubmit(() => this.sendMessage())
 
           Button(this.isLoading ? '停止' : '发送')
