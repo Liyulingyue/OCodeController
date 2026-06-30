@@ -1,6 +1,7 @@
 ﻿import { OpenCodeCore, OpenCodeMessage, SseEvent } from '../core/OpenCodeCore';
 import { ChatViewModel, DisplayMessage } from '../viewmodel/ChatViewModel';
 import { parseMessageSegments, MessageSegment, MessageSegmentType, parseMarkdown, MarkdownSegment, MarkdownType } from '../utils/MessageParser';
+import { KeyboardAvoidMode } from '@kit.ArkUI';
 import router from '@ohos.router';
 
 interface MessagePart {
@@ -83,6 +84,8 @@ struct ChatPage {
   @StorageLink('enableMarkdownRender') enableMarkdownRender: boolean = true;
 
   aboutToAppear() {
+    this.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+
     const params = router.getParams() as Record<string, Object>;
     if (params) {
       this.sessionId = (params['sessionId'] as string) || '';
@@ -152,6 +155,7 @@ struct ChatPage {
   }
 
   aboutToDisappear() {
+    this.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.OFFSET);
     this.core.saveDraft(this.sessionId, this.inputText);
     this.core.markCurrentProjectLeft();
     if (OpenCodeCore.SSE_ENABLED) {

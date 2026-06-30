@@ -1,19 +1,13 @@
-## 1. 修改根 Stack 的 expandSafeArea
+## 1. 实现键盘压缩避让
 
-- [ ] 1.1 在 `ChatPage.ets` 的 `build()` 方法中，找到根 `Stack` 的 `.expandSafeArea([SafeAreaType.SYSTEM, SafeAreaType.KEYBOARD], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])`
-- [ ] 1.2 将其修改为 `.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])`，移除 `SafeAreaType.KEYBOARD` 和 `SafeAreaEdge.BOTTOM`
+- [x] 1.1 查阅官方文档，确认 `KeyboardAvoidMode.RESIZE` 是固定顶部控件的合适方案
+- [x] 1.2 在 `ChatPage.ets` 中引入 `KeyboardAvoidMode`
+- [x] 1.3 在 `aboutToAppear()` 中设置 `KeyboardAvoidMode.RESIZE`
+- [x] 1.4 在 `aboutToDisappear()` 中恢复 `KeyboardAvoidMode.OFFSET`
+- [x] 1.5 保留现有 `Scroll.layoutWeight(1)` 布局，不添加 `expandSafeArea([SafeAreaType.KEYBOARD])`
 
-## 2. 为输入框 Row 添加键盘扩展
+## 2. 验证
 
-- [ ] 2.1 找到 `build()` 方法中输入框所在的 `Row` 组件
-- [ ] 2.2 在 `Row` 的 `.backgroundColor(this.themeBgCard)` 后添加 `.expandSafeArea([SafeAreaType.KEYBOARD], [SafeAreaEdge.BOTTOM])`
-
-## 3. 验证标题栏固定
-
-- [ ] 3.1 测试：唤起软键盘时，确认标题栏始终显示在屏幕顶部
-- [ ] 3.2 测试：键盘隐藏后，确认标题栏仍在屏幕顶部
-
-## 4. 验证输入框跟随键盘
-
-- [ ] 4.1 测试：唤起软键盘时，确认输入框跟随键盘向上移动，不被键盘遮挡
-- [ ] 4.2 测试：键盘隐藏后，确认输入框恢复到屏幕底部正常位置
+- [x] 2.1 运行 ArkTS/HarmonyOS 构建检查
+- [x] 2.2 真机或模拟器测试：唤起软键盘时标题栏仍在顶部
+- [x] 2.3 真机或模拟器测试：输入栏不被软键盘遮挡
