@@ -3,6 +3,7 @@ import { SessionDetailViewModel, FileNode } from '../viewmodel/SessionDetailView
 import { RemoteSessionPicker } from '../components/RemoteSessionPicker';
 import { PathAutocomplete } from '../components/PathAutocomplete';
 import { BackendPicker } from '../components/BackendPicker';
+import { KeyboardAvoidMode } from '@kit.ArkUI';
 import router from '@ohos.router';
 import http from '@ohos.net.http';
 
@@ -49,8 +50,11 @@ struct SessionDetail {
   private core: OpenCodeCore = OpenCodeCore.getInstance();
   private currentRequest: http.HttpRequest | null = null;
   private pathSearchTimer: number = -1;
+  private suppressNextDirectoryChange: boolean = false;
 
   aboutToAppear() {
+    this.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+
     this.backends = this.core.getBackends();
     const params = router.getParams() as Record<string, Object>;
     if (params) {
@@ -82,6 +86,10 @@ struct SessionDetail {
       this.fetchModels();
     }
     this.recentPaths = AppStorage.get<string[]>('recentWorktreePaths') ?? [];
+  }
+
+  aboutToDisappear() {
+    this.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.OFFSET);
   }
 
   private async fetchRemoteSessions() {
@@ -139,23 +147,28 @@ struct SessionDetail {
     return this.backends.find(b => b.id === this.backendId);
   }
 
-  private onRecentPathSelect(path: string) {
+  private applySelectedDirectory(path: string) {
+    this.suppressNextDirectoryChange = true;
     this.directory = path;
     this.showPathPicker = false;
+    this.pathSearchResults = [];
+    this.isSearchingPath = false;
+    if (this.pathSearchTimer !== -1) {
+      clearTimeout(this.pathSearchTimer);
+      this.pathSearchTimer = -1;
+    }
+    this.recentPaths = this.viewModel.addRecentPath(path, this.recentPaths);
     setTimeout(() => {
-      this.showPathPicker = true;
-      this.schedulePathSearch(path);
-    }, 100);
+      this.suppressNextDirectoryChange = false;
+    }, 200);
+  }
+
+  private onRecentPathSelect(path: string) {
+    this.applySelectedDirectory(path);
   }
 
   private onPathSelect(path: string) {
-    this.directory = path;
-    this.showPathPicker = false;
-    setTimeout(() => {
-      this.showPathPicker = true;
-      const nextQuery = this.directory.endsWith('/') ? this.directory : this.directory + '/';
-      this.listDirectory(nextQuery);
-    }, 100);
+    this.applySelectedDirectory(path);
   }
 
   private schedulePathSearch(query: string) {
@@ -320,9 +333,13 @@ struct SessionDetail {
         TextInput({ placeholder: '输入目录路径，如 /home', text: this.directory })
           .onChange(v => {
             this.directory = v;
-            if (this.showPathPicker) {
-              this.schedulePathSearch(v);
+            if (this.suppressNextDirectoryChange) {
+              this.suppressNextDirectoryChange = false;
+              this.showPathPicker = false;
+              return;
             }
+            this.showPathPicker = true;
+            this.schedulePathSearch(v);
           })
           .onFocus(() => {
             this.showPathPicker = true;
